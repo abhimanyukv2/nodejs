@@ -10,18 +10,19 @@ app.use(express.static(__dirname))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 
-var messages = [
+var message = [
     {name: "Abhimanyu", message: "Hi"},
     {name: "Jane", message: "Hello"}
 ]
 
-app.get('/messages', (req, res) => {
-    res.send(messages)
+app.get('/message', (req, res) => {
+    res.send(message)
 })
 
-app.post('/messages', (req, res) => {
+app.post('/message', (req, res) => {
     // console.log(req.body)
-    messages.push(req.body)
+    message.push(req.body)
+    io.emit('message', req.body)
     res.sendStatus(200)
 })
 

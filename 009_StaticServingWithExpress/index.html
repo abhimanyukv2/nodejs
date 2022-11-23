@@ -31,24 +31,27 @@
 
 <script>
     var socket = io()
-    
+
     $(() => {
         $('#send').click(() => {
-            var message = {name: $("#name").val(), message: $("#messsage").val()}
-            postMessages(message)
+            var message = {name: $("#name").val(), message: $("#message").val()}
+            postMessage(message)
         })
-        getMessages()
+        getMessage()
     })
-    function addMessages(message){
+
+    socket.on('message',addMessage)
+
+    function addMessage(message){
         $("#message").append(`<h4> ${message.name} </h4> <p> ${message.message} </p>`)
     }
 
-    function getMessages() {
-        $.get('http://localhost:3000/messages', (data) => {
-            data.forEach(addMessages);
+    function getMessage() {
+        $.get('http://localhost:3000/message', (data) => {
+            data.forEach(addMessage);
         })
     }
-    function postMessages(message) {
-        $.post('http://localhost:3000/messages', message)
+    function postMessage(message) {
+        $.post('http://localhost:3000/message', message)
     }
 </script>
