@@ -5,10 +5,18 @@ var bodyParser = require('body-parser')
 var app = express()
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
+var mongoose = require('mongoose')
 
 app.use(express.static(__dirname))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
+
+var dbUrl = 'mongodb+srv://abhimanyukv2:7209773005@cluster0.fw8j5pp.mongodb.net/?retryWrites=true&w=majority'
+
+var Message = mongoose.model('Message', {
+    name : String,
+    message: String
+})
 
 var message = [
     {name: "Abhimanyu", message: "Hi"},
@@ -16,18 +24,30 @@ var message = [
 ]
 
 app.get('/message', (req, res) => {
-    res.send(message)
+    Message.find({}, (err, message) => {
+        res.send(message)
+    })
 })
 
 app.post('/message', (req, res) => {
     // console.log(req.body)
-    message.push(req.body)
-    io.emit('message', req.body)
-    res.sendStatus(200)
+    var message  = new Message(req.body)
+    message.save((err) => {
+        if(err){
+            res.sendStatus(500)
+        }
+        // message.push(req.body)
+        io.emit('message', req.body)
+        res.sendStatus(200)
+    })
 })
 
 io.on('connection', (socket) => {
     console.log('a user connected')
+})
+
+mongoose.connect(dbUrl, (err) => {
+    console.log('mongo db connection', err)
 })
 
 var server = http.listen(3000, () =>{
